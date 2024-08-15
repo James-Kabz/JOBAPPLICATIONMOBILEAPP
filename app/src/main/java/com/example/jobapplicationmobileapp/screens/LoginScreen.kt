@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +41,6 @@ fun LoginScreen ()
 {
     var email by remember { mutableStateOf("")}
     var password by remember { mutableStateOf("") }
-    var passwordVisible by remember{ mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf("") }
     Box(
@@ -95,7 +93,7 @@ fun LoginScreen ()
                     onValueChange = {password = it},
                     label = { Text("password", color = Color.Black)},
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation =  if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation =  PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
 
                 )
