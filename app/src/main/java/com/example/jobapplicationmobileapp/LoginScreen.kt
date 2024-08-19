@@ -1,4 +1,4 @@
-package com.example.jobapplicationmobileapp.screens
+package com.example.jobapplicationmobileapp
 
 
 import androidx.compose.foundation.Image
@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,16 +32,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.jobapplicationmobileapp.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 
+private lateinit var auth: FirebaseAuth
 @Composable
 
 fun LoginScreen ()
 {
+    auth = FirebaseAuth.getInstance()
     var email by remember { mutableStateOf("")}
     var password by remember { mutableStateOf("") }
-    var showError by remember { mutableStateOf(false) }
+//    var showError by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
@@ -108,27 +113,23 @@ fun LoginScreen ()
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = {
-//                        validation
-                         showError = email.isEmpty() || password.isEmpty()
-                        successMessage = if (!showError) "Login Successfull" else ""
-                    },
+                    onClick = { signUp(email, password, { user -> successMessage = "Welcome ${user?.email}" }, { error -> showError = error }) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Login")
+                    Text("Sign Up")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
 
-                if (showError) {
+                showError?.let {
                     Text(
-                        text = "Please enter both email and password.",
-                        color = Color.Red,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
+
 
                 if (successMessage.isNotEmpty())
                 {
@@ -143,4 +144,15 @@ fun LoginScreen ()
             }
         }
     }
+}
+
+private fun signUp(email: String, password: String, onSuccess: (FirebaseUser?) -> Unit, onFailure: (String) -> Unit) {
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onSuccess(auth.currentUser)
+            } else {
+                onFailure(task.exception?.message ?: "Sign up failed")
+            }
+        }
 }
